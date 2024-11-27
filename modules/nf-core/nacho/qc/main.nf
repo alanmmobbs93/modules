@@ -1,20 +1,20 @@
 nextflow.enable.moduleBinaries = true
 
-process NACHO_QC  {
-    tag "$sample_sheet"
+process NACHO_QC {
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
     container 'community.wave.seqera.io/library/r-dplyr_r-fs_r-ggplot2_r-nacho_pruned:033bc017f5f36b6d'
 
     input:
-    path rcc_files, stageAs: "input/*"
-    path sample_sheet
+    tuple val(meta) , path(rcc_files, stageAs: "input/*")
+    tuple val(meta2), path(sample_sheet)
 
     output:
-    path "*.html"       , emit: nacho_qc_reports
-    path "*_mqc.*"      , emit: nacho_qc_multiqc_metrics
-    path "versions.yml" , emit: versions
+    tuple val(meta), path("*.html") , emit: nacho_qc_reports
+    tuple val(meta), path("*_mqc.*"), emit: nacho_qc_multiqc_metrics
+    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,7 +23,9 @@ process NACHO_QC  {
     def args = task.ext.args ?: ''
 
     """
-    nacho_qc.R --input_rcc_path input --input_samplesheet ${sample_sheet}
+    nacho_qc.R \\
+        --input_rcc_path input \\
+        --input_samplesheet ${sample_sheet}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -41,7 +43,7 @@ process NACHO_QC  {
     stub:
     """
     touch qc.html
-    touch qc_mqc.txt ## revisar esto
+    touch qc_mqc.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

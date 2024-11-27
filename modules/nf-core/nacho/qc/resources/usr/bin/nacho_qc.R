@@ -7,7 +7,7 @@ library(NACHO)
 library(readr)
 library(tidyr)
 
-###Commandline Argument parsing###
+# Commandline Argument parsing
 option_list <- list(
     make_option(
         c("--input_rcc_path"),
@@ -37,17 +37,17 @@ if (is.null(opt$input_samplesheet)) {
 input_rcc_path    <- opt$input_rcc_path
 input_samplesheet <- opt$input_samplesheet
 
-#Create filelist for NachoQC
+# Create filelist for NachoQC
 list_of_rccs <- dir_ls(path = input_rcc_path, glob = "*.RCC")
 
-####RealCode####
+# Core Code
 nacho_data <- load_rcc(data_directory = input_rcc_path,
                         ssheet_csv = input_samplesheet,
                         id_colname = "RCC_FILE_NAME")
 
 output_base <- "./"
 
-#Write out HK genes detected and add to MultiQC report as custom content
+# Write out HK genes detected and add to MultiQC report as custom content
 line="#id: nf-core-nanostring-hk-genes
 #section_name: 'Housekeeping Genes'
 #description: 'The following Housekeeping Genes have been detected in the input RCC Files:'
@@ -59,7 +59,7 @@ line="#id: nf-core-nanostring-hk-genes
 write(line,file=paste0(output_base, "hk_detected_mqc.txt"),append=TRUE)
 write(nacho_data$housekeeping_genes ,paste0(output_base,"hk_detected_mqc.txt"),append=TRUE)
 
-#Add in all plots as MQC output for MultiQC
+# Add in all plots as MQC output for MultiQC
 plot_bd <- autoplot(
     object = nacho_data,
     x = "BD",
@@ -256,8 +256,8 @@ qc_table <- nacho_data[["nacho"]] %>%
 
 write_tsv(qc_table ,file=paste0(output_base,"normalized_qc_mqc.txt"))
 
-#Render Standard Report for investigation in main MultiQC Report
+# Render Standard Report for investigation in main MultiQC Report
 render(nacho_data, output_dir = output_base, output_file = "NanoQC.html", show_outliers = FALSE)
 
-#Render the same Report for standard investigation, but not for MultiQC Report
+# Render the same Report for standard investigation, but not for MultiQC Report
 render(nacho_data, output_dir = output_base, output_file = "NanoQC_with_outliers.html", show_outliers = TRUE)

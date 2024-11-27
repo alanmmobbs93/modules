@@ -1,6 +1,4 @@
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: nacho_normalise
+name: nacho_qc
 description: |
   NACHO (NAnostring quality Control dasHbOard) is developed for NanoString nCounter data.
   NanoString nCounter data is a messenger-RNA/micro-RNA (mRNA/miRNA) expression assay and works with fluorescent barcodes.
@@ -21,44 +19,60 @@ tools:
         For more information `vignette("NACHO")` and `vignette("NACHO-analysis")`
       homepage: https://github.com/mcanouil/NACHO
       documentation: https://cran.r-project.org/web/packages/NACHO/vignettes/NACHO.html
-      doi: "doi:10.1093/bioinformatics/btz647"
-      licence: GPL-3.0 license
-      identifier: biotools:nacho
-
+      doi: "10.1093/bioinformatics/btz647"
+      licence: [ "GPL-3.0" ]
+      identifier: ""
 input:
-  - - rcc_files:
-      type: file
-      description: |
-        List of RCC files for all samples, which are direct outputs from NanoString runs
-      pattern: "*.RCC"
-  - - sample_sheet:
-      type: "file"
-      pattern: "*.csv"
-      description: |
-        Comma-separated file with 3 columns: RCC_FILE, RCC_FILE_NAME, and SAMPLE_ID
-
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ]
+    - rcc_files:
+        type: file
+        description: |
+          List of RCC files for all samples, which are direct outputs from NanoString runs
+        pattern: "*.RCC"
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing file information
+          e.g. [ id:'test_samplesheet' ]
+    - sample_sheet:
+        type: "file"
+        pattern: "*.csv"
+        description: |
+          Comma-separated file with 3 columns: RCC_FILE, RCC_FILE_NAME, and SAMPLE_ID
 output:
-  - ormalized_counnts:
-    - "normalized_counts.tsv":
+  - nacho_qc_reports:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ]
+    - "*.html":
         type: file
         description: |
-          Tab-separated file with gene normalized counts for the samples
-        pattern: "*normalized_counts.tsv"
-
-  - normalized_counts_wo_HK:
-    - "normalized_counts_wo_HKnorm.tsv":
+          HTML report
+        pattern: "*.html"
+  - nacho_qc_multiqc_metrics:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ]
+    - "*_mqc.*":
         type: file
         description: |
-          Tab-separated file with gene normalized counts for the samples, without housekeeping genes.
-        pattern: "*normalized_counts_wo_HKnorm.tsv"
+          Plain text report
+        pattern: "*_mqc.*"
   - versions:
     - "versions.yml":
         type: file
         description: |
           File containing software versions
         pattern: "versions.yml"
-
 authors:
-  - Mickaël Canouil, Gerard A. Bouland, Amélie Bonnefond, Philippe Froguel, Leen Hart, and Roderick Slieker.
+  - "@alanmmobbs93"
 maintainers:
-  -
+  - "@alanmmobbs93"
